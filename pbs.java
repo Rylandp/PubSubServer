@@ -107,6 +107,31 @@ public class pbs {
     //
     private void handleConnection(Socket socket) throws IOException {
         // TODO: Implement
+        BufferedReader in = new BufferedReader(
+            new InputStreamReader(socket.getInputStream()));
+
+        OutputStream out = socket.getOutputStream();
+        
+        String line = in.readLine();
+        while(line == null || line.isEmpty()) {
+            return;
+        }
+
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>(parseHeaders(in));
+        
+        String HTTPMethod = line.split(" ")[0];
+        String path = line.split(" ")[1];
+        String clientID = headers.get("x-client-id");
+
+        String body = null;
+        if("POST".equals(HTTPMethod) && headers.containsKey("content-length")) {
+            int length = Integer.parseInt(headers.get("content-length"));
+            char[] buf = new char[length];
+            int read = in.read(buf);
+            body = new String(buf, 0, read);
+        }
+        dispatchRequest(out, HTTPMethod, path, clientID, body);
+
     }
 
     //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
