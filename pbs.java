@@ -238,6 +238,15 @@ public class pbs {
     //
     private void handleSubscribe(OutputStream out, String clientId, String topic) throws IOException {
         // TODO: Implement
+        Set<String> subscribers = topics.computeIfAbsent(topic, k -> ConcurrentHashMap.newKeySet());
+        subscribers.add(clientId);
+
+        mailboxes.computeIfAbsent(clientId, k -> new ConcurrentLinkedQueue<>());
+
+        String json = "{\"status\":\"subscribed\",\"topic\":\"" + topic + "\"}";
+        byte[] body = json.getBytes(StandardCharsets.UTF_8);
+
+        sendResponse(out, 200, "OK", "application/json", body);
     }
 
     //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
