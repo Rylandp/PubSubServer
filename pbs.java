@@ -124,7 +124,7 @@ public class pbs {
         String clientID = headers.get("x-client-id");
 
         String body = null;
-        if("POST".equals(HTTPMethod) && headers.containsKey("content-length")) {
+        if(HTTPMethod.equals("POST") && headers.containsKey("content-length")) {
             int length = Integer.parseInt(headers.get("content-length"));
             char[] buf = new char[length];
             int read = in.read(buf);
@@ -182,6 +182,43 @@ public class pbs {
     private void dispatchRequest(OutputStream out, String method, String path,
                                   String clientId, String body) throws IOException {
         // TODO: Implement
+        
+        if(method.equals("GET")) {
+            if(path.equals("/status")) {
+                handleStatus(out);
+            } else if (path.equals("/messages")) {
+                if(clientId == null) {
+                    sendError(out, 400, "Missing X-Client-ID");
+                } else {
+                    handleMessages(out, clientId);
+                }
+            } else {
+                sendError(out, 404, "Not Found");
+            }
+        } else if (method.equals("POST")) {
+            String[] parts = path.split("/");
+            if (parts.length < 3) {
+                sendError(out, 404, "Not Found");
+                return;
+            }
+            String action = parts[1];
+            String topic = parts[2];
+            if(clientId == null) {
+                sendError(out, 400, "Missing X-Client-ID");
+                return;
+            }
+            if(action.equals("subscribe")) {
+                handleSubscribe(out, clientId, topic);
+            } else if(action.equals("unsubscribe")) {
+                handleUnsubscribe(out, clientId, topic);
+            } else if(action.equals("publish")) {
+                handlePublish(out, clientId, topic, body);
+            } else {
+                sendError(out, 404, "Not Found");
+            }
+        } else {
+            sendError(out, 404, "Not Found");
+        }
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
