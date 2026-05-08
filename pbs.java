@@ -315,6 +315,25 @@ public class pbs {
     //
     private void handleMessages(OutputStream out, String clientId) throws IOException {
         // TODO: Implement
+        Queue<String> mailbox = mailboxes.get(clientId);
+        List<String> messages = new ArrayList<>();
+        
+        if (mailbox != null) {
+            String msg;
+            while ((msg = mailbox.poll()) != null) {
+                messages.add(escapeJson(msg));
+            }
+        }
+        
+        StringBuilder json = new StringBuilder("{\"messages\":[");
+        for (int i = 0; i < messages.size(); i++) {
+            if (i > 0) json.append(",");
+            json.append("\"").append(messages.get(i)).append("\"");
+        }
+        json.append("],\"count\":").append(messages.size()).append("}");
+        
+        byte[] bodyBytes = json.toString().getBytes(StandardCharsets.UTF_8);
+        sendResponse(out, 200, "OK", "application/json", bodyBytes);
     }
 
     //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
