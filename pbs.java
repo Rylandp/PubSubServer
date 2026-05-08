@@ -345,6 +345,17 @@ public class pbs {
     //
     private void handleStatus(OutputStream out) throws IOException {
         // TODO: Implement
+        StringBuilder json = new StringBuilder("{\"topics\":{");
+        boolean first = true;
+        for (Map.Entry<String, Set<String>> entry : topics.entrySet()) {
+            if (!first) json.append(",");
+            json.append("\"").append(entry.getKey()).append("\":").append(entry.getValue().size());
+            first = false;
+        }
+        json.append("}}");
+        
+        byte[] bodyBytes = json.toString().getBytes(StandardCharsets.UTF_8);
+        sendResponse(out, 200, "OK", "application/json", bodyBytes);
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -392,6 +403,7 @@ public class pbs {
     //
     private void sendError(OutputStream out, int code, String message) throws IOException {
         // TODO: Implement
+        
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
