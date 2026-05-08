@@ -286,6 +286,20 @@ public class pbs {
     //
     private void handlePublish(OutputStream out, String clientId, String topic, String body) throws IOException {
         // TODO: Implement
+        Set<String> subscribers = topics.get(topic);
+        int delivered = 0;
+        
+        if (subscribers != null) {
+            for (String subscriberId : subscribers) {
+                Queue<String> mailbox = mailboxes.get(subscriberId);
+                mailbox.add(topic + ": " + body);
+                delivered++;
+            }
+        }
+        
+        String json = "{\"status\":\"published\",\"topic\":\"" + topic + "\",\"delivered\":" + delivered + "}";
+        byte[] bodyBytes = json.getBytes(StandardCharsets.UTF_8);
+        sendResponse(out, 200, "OK", "application/json", bodyBytes);
     }
 
     //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
