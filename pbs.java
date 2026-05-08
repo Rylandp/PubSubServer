@@ -259,6 +259,20 @@ public class pbs {
     //
     private void handleUnsubscribe(OutputStream out, String clientId, String topic) throws IOException {
         // TODO: Implement
+        Set<String> subscribers = topics.get(topic);
+        if(subscribers != null) {
+            subscribers.remove(clientId);
+            if(subscribers.isEmpty()){
+                topics.remove(topic);
+            }
+        }
+        
+
+        String json = "{\"status\":\"unsubscribed\",\"topic\":\"" + topic + "\"}";
+        byte[] body = json.getBytes(StandardCharsets.UTF_8);
+
+        sendResponse(out, 200, "OK", "application/json", body);
+
     }
 
     //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
