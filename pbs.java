@@ -324,6 +324,16 @@ public class pbs {
     private void sendResponse(OutputStream out, int code, String message,
                                String contentType, byte[] body) throws IOException {
         // TODO: Implement
+        PrintWriter writer = new PrintWriter(out, true);
+        writer.print("HTTP/1.1 " + code + " " + message + "\r\n");
+        writer.print("Content-Type: " + contentType + "\r\n");
+        writer.print("Content-Length: " + body.length + "\r\n");
+        writer.print("Connection: close:\r\n");
+        writer.print("\r\n");
+        writer.flush();
+
+        out.write(body);
+        out.flush();
     }
 
     //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
