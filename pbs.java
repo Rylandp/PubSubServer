@@ -403,7 +403,9 @@ public class pbs {
     //
     private void sendError(OutputStream out, int code, String message) throws IOException {
         // TODO: Implement
-        
+        String json = "{\"error\":\"" + message + "\"}";
+        byte[] bodyBytes = json.getBytes(StandardCharsets.UTF_8);
+        sendResponse(out, code, message, "application/json", bodyBytes);
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
